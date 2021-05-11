@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var postNNField: UITextField!
     @IBOutlet weak var postTextView: UITextView!
@@ -16,15 +16,21 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        postNNField.delegate = self
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.hideKeyboard))
         view.addGestureRecognizer(tap)
     }
+    
     @IBAction func getBtnPressed(_ sender: UIButton) {
         // все проверим
         guard let postNN = postNNField.text else {return}
         let url = URL(string: "https://jsonplaceholder.typicode.com/comments?postId=" + postNN)
         guard let requestUrl = url else {return}
         // все проверили
+        
+        // теперь уберем клавиатуру
+        hideKeyboard()
         
         
         var request = URLRequest(url: requestUrl)
@@ -48,11 +54,20 @@ class ViewController: UIViewController {
           task.resume() // запускаем
     }
     
-  
-    
     @objc func hideKeyboard() {
         view.endEditing(true)
     }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == postNNField {
+            let allowedCharacters  = CharacterSet(charactersIn: "0123456789")
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
+
 
 }
+
 
